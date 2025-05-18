@@ -1,15 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Error Correction by Using Large Language Models</title>
   <link rel="stylesheet" href="css/theme.min.css">
   <style>
+    /* inter-300 - latin */
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 300;
+      font-display: swap;
+      src: local(''),
+        url('fonts/inter-v12-latin-300.woff2') format('woff2'),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('fonts/inter-v12-latin-300.woff') format('woff');
+      /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    }
+
+    /* inter-400 - latin */
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: local(''),
+        url('fonts/inter-v12-latin-regular.woff2') format('woff2'),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('fonts/inter-v12-latin-regular.woff') format('woff');
+      /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    }
+
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: local(''),
+        url('fonts/inter-v12-latin-500.woff2') format('woff2'),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('fonts/inter-v12-latin-500.woff') format('woff');
+      /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    }
+
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: local(''),
+        url('fonts/inter-v12-latin-700.woff2') format('woff2'),
+        /* Chrome 26+, Opera 23+, Firefox 39+ */
+        url('fonts/inter-v12-latin-700.woff') format('woff');
+      /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    }
+    
     body {
+      padding-top: 70px; /* 为固定导航栏提供空间 */
       background-color: #f8f9fa;
       color: #212529;
+    }
+    .navbar {
+      background-color: #f8f9fa !important;
+    }
+    .navbar-brand {
+      color: #212529 !important;
     }
     .section {
       padding: 4rem 1rem;
@@ -31,15 +87,26 @@
     }
   </style>
 </head>
-
 <body>
+  <nav id="navScroll" class="navbar navbar-light bg-light fixed-top px-vw-5" tabindex="0">
+    <div class="container">
+      <a class="navbar-brand pe-md-4 fs-4 col-12 col-md-auto text-center" href="index.html">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+          <path
+            d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
+          <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+        </svg>
+        <span class="ms-md-1 mt-1 fw-bolder me-md-5">Kristy</span>
+      </a>
+    </div>
+  </nav>
+
   <header class="section text-center">
     <div class="container">
       <h1 class="display-4 fw-bold">Error Correction by Using Large Language Models</h1>
       <p class="lead">Exploring EvoPrompt, LoRA fine-tuning, and decoding optimizations for improving ASR accuracy.</p>
     </div>
   </header>
-
   <main>
     <section class="section">
       <div class="container">
@@ -47,7 +114,6 @@
         <img src="img/poster.png" alt="Research Poster" class="img-fluid">
       </div>
     </section>
-
     <section class="section bg-white">
       <div class="container">
         <h2 class="text-center">Key Figures</h2>
@@ -60,12 +126,84 @@
       </div>
     </section>
   </main>
-
-  <footer class="section text-center">
-    <div class="container">
-      <p class="text-muted small">&copy; 2025 Kristy Zhang. All rights reserved.</p>
+  <footer class="bg-black border-top border-dark">
+    <div class="container py-vh-4 text-secondary fw-lighter">
+      <div class="row">
+        <div class="col-12 col-lg-5 py-4 text-center text-lg-start">
+          <a class="navbar-brand pe-md-4 fs-4 col-12 col-md-auto text-center" href="index.html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+              <path
+                d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
+              <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+            </svg>
+            <span class="ms-md-1 mt-1 fw-bolder me-md-5">Kristy</span>
+          </a>
+        </div>
+        <div class="col border-end border-dark">
+          <span class="h6">My Projects</span>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a href="sw.html" class="link-fancy link-fancy-light">Swallowtail butterfly</a>
+            </li>
+            <li class="nav-item">
+              <a href="su.html" class="link-fancy link-fancy-light">Susu&Snow</a>
+            </li>
+            <li class="nav-item">
+              <a href="foodie.html" class="link-fancy link-fancy-light">Spoteat</a>
+            </li>
+            <li class="nav-item">
+              <a href="lut.html" class="link-fancy link-fancy-light">Lutolence</a>
+            </li>
+            <li class="nav-item">
+              <a href="ava.html" class="link-fancy link-fancy-light">LiNFT</a>
+            </li>
+            <li class="nav-item">
+              <a href="llm_error_correction.html" class="link-fancy link-fancy-light">LLM Error Correction</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col border-end border-dark">
+          <span class="h6">About Me</span>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a href="https://github.com/KristyZhang-Luyan" class="link-fancy link-fancy-light">Github</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="link-fancy link-fancy-light">Linkedin</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container text-center small py-vh-2 border-top border-dark">Made by
+      <a href="index.html" class="link-fancy link-fancy-light" target="_blank">Kristy Zhang</a>
     </div>
   </footer>
-</body>
 
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 800, // values from 0 to 3000, with step 50ms
+    });
+  </script>
+  <script>
+    let scrollpos = window.scrollY
+    const header = document.querySelector(".navbar")
+    const header_height = header.offsetHeight
+
+    const add_class_on_scroll = () => header.classList.add("scrolled", "shadow-sm")
+    const remove_class_on_scroll = () => header.classList.remove("scrolled", "shadow-sm")
+
+    window.addEventListener('scroll', function() {
+      scrollpos = window.scrollY;
+
+      if (scrollpos >= header_height) {
+        add_class_on_scroll()
+      } else {
+        remove_class_on_scroll()
+      }
+    })
+  </script>
+</body>
 </html>
