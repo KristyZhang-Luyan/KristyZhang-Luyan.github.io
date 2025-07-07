@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvoLoRA: Synergizing Low-Rank Adaptation and Evolutionary Prompts for Resource-Efficient ASR Error Correction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            background: #fafafa;
+            color: #2c3e50;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #34495e;
+        }
+
+        .paper-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+        }
+
+        .authors {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .affiliation {
+            font-size: 1em;
+            color: #95a5a6;
+            margin-bottom: 20px;
+        }
+
+        .keywords-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .keyword {
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: 1px solid #bdc3c7;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #34495e;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-number {
+            background: #34495e;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .abstract {
+            background: #f8f9fa;
+            padding: 30px;
+            border-left: 5px solid #34495e;
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #2c3e50;
+            text-align: justify;
+        }
+
+        .abstract strong {
+            color: #e74c3c;
+        }
+
+        .methodology-overview {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin: 40px 0;
+            align-items: start;
+        }
+
+        .pipeline-diagram {
+            background: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .pipeline-step {
+            background: white;
+            border: 2px solid #34495e;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-step:hover {
+            background: #ecf0f1;
+            transform: translateX(5px);
+        }
+
+        .pipeline-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+
+        .pipeline-step h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .pipeline-step p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .technical-details {
+            background: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 25px;
+        }
+
+        .technique-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .technique-card h4 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .technique-icon {
+            background: #34495e;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 0.8em;
+        }
+
+        .formula {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 0.95em;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #bdc3c7;
+        }
+
+        .comparison-table th {
+            background: #34495e;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #e8f4f8;
+        }
+
+        .best-result {
+            background: #d5f4e6 !important;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .chart-container {
+            background: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .figure-image {
+            max-width: 100%; 
+            height: auto; 
+            border: 1px solid #ddd; 
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .figure-caption {
+            font-size: 0.9em; 
+            color: #666; 
+            margin-top: 10px; 
+            font-style: italic;
+            text-align: center;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 350px;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(to top, #f8f9fa 0%, #f8f9fa 100%);
+            border-radius: 6px;
+        }
+
+        .bar {
+            background: linear-gradient(to top, #34495e 0%, #2c3e50 100%);
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .bar:hover {
+            background: linear-gradient(to top, #e74c3c 0%, #c0392b 100%);
+            transform: scale(1.05);
+        }
+
+        .bar-value {
+            color: white;
+            font-weight: bold;
+            padding: 10px 5px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 500;
+            width: 100px;
+        }
+
+        .ablation-study {
+            background: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .contribution-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .contribution-label {
+            min-width: 180px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        .contribution-progress {
+            flex: 1;
+            height: 30px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 0 15px;
+            position: relative;
+        }
+
+        .contribution-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #34495e 0%, #2c3e50 100%);
+            border-radius: 15px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .contribution-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .discussion {
+            background: #f8f9fa;
+            border-left: 5px solid #f39c12;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .discussion h4 {
+            color: #d68910;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .future-work {
+            background: #e8f6f3;
+            border: 1px solid #58d68d;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .future-work h4 {
+            color: #27ae60;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .future-work ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .future-work li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            color: #2c3e50;
+        }
+
+        .future-work li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+        }
+
+        .conclusion {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .conclusion h3 {
+            color: #ecf0f1;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .references {
+            background: #f8f9fa;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .reference-item {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            text-indent: -20px;
+            color: #34495e;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .mathematical-notation {
+            font-style: italic;
+            color: #8e44ad;
+        }
+
+        .highlight-finding {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .highlight-finding strong {
+            color: #e17055;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 20px 30px;
+            }
+            
+            .methodology-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 20px;
+            }
+            
+            .paper-title {
+                font-size: 1.6em;
+            }
+            
+            .section-title {
+                font-size: 1.4em;
+            }
+            
+            .bar-chart {
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="paper-title">EvoLoRA: Synergizing Low-Rank Adaptation and Evolutionary Prompts for Resource-Efficient ASR Error Correction</h1>
+            <div class="authors">Luyan Zhang<sup>1</sup>, Kai Zong<sup>1</sup></div>
+            <div class="affiliation">
+                <sup>1</sup>Northeastern University, Khoury College of Computer Sciences<br>
+            </div>
+            <div class="keywords-section">
+                <span class="keyword">Automatic Speech Recognition</span>
+                <span class="keyword">Low-Rank Adaptation</span>
+                <span class="keyword">Evolutionary Optimization</span>
+                <span class="keyword">Large Language Models</span>
+                <span class="keyword">Resource-Efficient Learning</span>
+            </div>
+        </header>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">1</span>
+                Abstract
+            </h2>
+            <div class="abstract">
+                Automatic Speech Recognition (ASR) systems often generate transcription errors in noisy environments and specialized domains, while traditional Large Language Models (LLMs) perform poorly when applied directly (e.g., Qwen2.5-7B has a zero-sample Word Error Rate of <strong>1503.20%</strong>). To address this problem, this paper proposes the <strong>EvoLoRA framework</strong>, which achieves resource-efficient ASR error correction through deep integration of Low-Rank Adaptation (LoRA), Evolutionary Prompt Optimization (EvoPrompt), and auxiliary techniques. Experiments demonstrate that Qwen2.5-7B reduces WER to <strong>6.25%</strong> after optimization, and TinyLlama-1.1B reaches <strong>7.47%</strong> with only <strong>2.3 GPU hours</strong> of training time, both approaching the ASR baseline system (5.31%). LoRA technology reduces trainable parameters by more than <strong>98%</strong>, validating the feasibility of the "lightweight model + efficient optimization" strategy for resource-constrained scenarios.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">2</span>
+                Methodology
+            </h2>
+            
+            <!-- Figure 1: System Architecture -->
+            <div class="chart-container">
+                <div class="chart-title">EvoLoRA System Architecture Pipeline</div>
+                <div style="text-align: center; padding: 20px;">
+                    <img src="figure1.png" alt="EvoLoRA System Architecture Pipeline" class="figure-image">
+                    <p class="figure-caption">
+                        <strong>Figure 1:</strong> End-to-end process flow of the EvoLoRA framework showing the complete pipeline from audio input to final transcription
+                    </p>
+                </div>
+            </div>
+            
+            <div class="methodology-overview">
+                <div class="pipeline-diagram">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #2c3e50;">System Architecture</h3>
+                    <div class="pipeline-step">
+                        <h4>ASR N-best Hypotheses</h4>
+                        <p>H = {h₁, h₂, ..., hₙ} with confidence scores</p>
+                    </div>
+                    <div class="pipeline-step">
+                        <h4>LoRA Adaptation</h4>
+                        <p>Low-rank matrix injection (r=8)</p>
+                    </div>
+                    <div class="pipeline-step">
+                        <h4>EvoPrompt Optimization</h4>
+                        <p>Genetic algorithm-based prompt tuning</p>
+                    </div>
+                    <div class="pipeline-step">
+                        <h4>Auxiliary Processing</h4>
+                        <p>TokenLimit + Deduplication + Filtering</p>
+                    </div>
+                </div>
+
+                <div class="technical-details">
+                    <div class="technique-card">
+                        <h4><span class="technique-icon">L</span>Low-Rank Adaptation (LoRA)</h4>
+                        <p>Efficient parameter tuning by updating only 0.3%-1.2% of model parameters through low-rank decomposition:</p>
+                        <div class="formula">
+                            ΔW = AB, where A ∈ ℝ<sup>r×k</sup>, B ∈ ℝ<sup>d×r</sup>, r ≪ min(d,k)
+                        </div>
+                        <p>Applied to Query and Value projection layers in attention mechanisms, reducing parameters from <em>dk</em> to <em>r(d+k)</em>.</p>
+                        
+                        <!-- Figure 2: LoRA Matrix Structure -->
+                        <div class="chart-container" style="margin-top: 20px;">
+                            <div class="chart-title">LoRA Matrix Structure Comparison</div>
+                            <div style="text-align: center; padding: 20px;">
+                                <img src="figure2.png" alt="LoRA Matrix Structure Comparison" class="figure-image">
+                                <p class="figure-caption">
+                                    <strong>Figure 2:</strong> Comparison between original dense Transformer layer weights (left) and LoRA low-rank matrix injection structure (right)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="technique-card">
+                        <h4><span class="technique-icon">E</span>Evolutionary Prompt Optimization</h4>
+                        <p>Genetic algorithm with population size 100, 50 iterations, using:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Selection:</strong> Roulette sampling (top 30% retention)</li>
+                            <li><strong>Crossover:</strong> Rate 0.8 with text segment splicing</li>
+                            <li><strong>Mutation:</strong> Rate 0.2 with keyword replacement</li>
+                            <li><strong>Fitness:</strong> WER on validation set</li>
+                        </ul>
+                        
+                        <!-- Figure 3: Evolutionary Algorithm Process -->
+                        <div class="chart-container" style="margin-top: 20px;">
+                            <div class="chart-title">Evolutionary Algorithm Process Visualization</div>
+                            <div style="text-align: center; padding: 20px;">
+                                <img src="figure3.png" alt="Evolutionary Algorithm Process Visualization" class="figure-image">
+                                <p class="figure-caption">
+                                    <strong>Figure 3:</strong> 3D visualization of evolutionary prompt optimization process showing initial population (blue), selection (green), crossover (red), and mutation (purple) stages
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="technique-card">
+                        <h4><span class="technique-icon">A</span>Auxiliary Error Mitigation</h4>
+                        <p>Multi-level error filtering mechanism:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>TokenLimit:</strong> Dynamic sequence truncation (45% WER contribution)</li>
+                            <li><strong>Deduplication:</strong> Sliding window algorithm (30% redundancy reduction)</li>
+                            <li><strong>Word Filtering:</strong> Domain-specific blacklist/whitelist</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">3</span>
+                Experimental Results
+            </h2>
+            
+            <div class="results-section">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Performance Metrics</h3>
+                <div class="performance-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">7.47%</div>
+                        <div class="metric-label">TinyLlama-1.1B<br>Final WER</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">6.25%</div>
+                        <div class="metric-label">Qwen2.5-7B<br>Final WER</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">98.7%</div>
+                        <div class="metric-label">Parameter<br>Reduction</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">2.3</div>
+                        <div class="metric-label">GPU Hours<br>(TinyLlama)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Word Error Rate (WER) Comparison</div>
+                <div class="bar-chart">
+                    <div class="bar" style="height: 45%;">
+                        <div class="bar-value">7.47%</div>
+                        <div class="bar-label">TinyLlama-1.1B<br>(EvoLoRA)</div>
+                    </div>
+                    <div class="bar" style="height: 38%;">
+                        <div class="bar-value">6.25%</div>
+                        <div class="bar-label">Qwen2.5-7B<br>(Full Fine-tuning)</div>
+                    </div>
+                    <div class="bar" style="height: 47%;">
+                        <div class="bar-value">7.82%</div>
+                        <div class="bar-label">Qwen2.5-7B<br>(LoRA only)</div>
+                    </div>
+                    <div class="bar" style="height: 32%;">
+                        <div class="bar-value">5.31%</div>
+                        <div class="bar-label">ASR<br>Baseline</div>
+                    </div>
+                    <div class="bar" style="height: 13%;">
+                        <div class="bar-value">2.20%</div>
+                        <div class="bar-label">Hypo2Trans<br>(SOTA)</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Parameters</th>
+                        <th>Zero-shot WER</th>
+                        <th>Optimized WER</th>
+                        <th>Training Time</th>
+                        <th>Parameter Updates</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>TinyLlama-1.1B</strong></td>
+                        <td>1.1B</td>
+                        <td>285.89%</td>
+                        <td class="best-result">7.47%</td>
+                        <td class="best-result">2.3 GPU hours</td>
+                        <td>0.3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Qwen2.5-7B</strong></td>
+                        <td>7B</td>
+                        <td>1503.20%</td>
+                        <td class="best-result">6.25%</td>
+                        <td>18.5 GPU hours</td>
+                        <td>1.2% (LoRA)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLaMA-3.2-3B</strong></td>
+                        <td>3.2B</td>
+                        <td>452.71%</td>
+                        <td>8.12%</td>
+                        <td>12.7 GPU hours</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GPT-3.5 Turbo</strong></td>
+                        <td>175B</td>
+                        <td>44.90%</td>
+                        <td>33.96%</td>
+                        <td>0.1 hours (API)</td>
+                        <td>0%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Figure 4: 3D WER Comparison -->
+            <div class="chart-container">
+                <div class="chart-title">3D WER Performance Comparison with SOTA</div>
+                <div style="text-align: center; padding: 20px;">
+                    <img src="figure4.png" alt="3D WER Performance Comparison with SOTA" class="figure-image">
+                    <p class="figure-caption">
+                        <strong>Figure 4:</strong> 3D comparison of Word Error Rates showing performance gaps between our methods and state-of-the-art Hypo2Trans
+                    </p>
+                </div>
+            </div>
+
+            <!-- Figure 5: Computational Efficiency -->
+            <div class="chart-container">
+                <div class="chart-title">Computational Efficiency vs Model Performance</div>
+                <div style="text-align: center; padding: 20px;">
+                    <img src="figure5.png" alt="Computational Efficiency vs Model Performance" class="figure-image">
+                    <p class="figure-caption">
+                        <strong>Figure 5:</strong> 3D visualization comparing optimized models (orange) versus baseline models (blue) across different model sizes, highlighting significant WER improvements
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">4</span>
+                Ablation Study
+            </h2>
+            
+            <div class="ablation-study">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">Module Contribution Analysis</h3>
+                <p style="margin-bottom: 25px; color: #7f8c8d;">
+                    Individual contribution of each component to overall WER reduction on Qwen2.5-7B:
+                </p>
+                
+                <div class="contribution-bar">
+                    <div class="contribution-label">TokenLimit</div>
+                    <div class="contribution-progress">
+                        <div class="contribution-fill" style="width: 45%;">
+                            <div class="contribution-value">45.0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contribution-bar">
+                    <div class="contribution-label">Repetition Removal</div>
+                    <div class="contribution-progress">
+                        <div class="contribution-fill" style="width: 30%;">
+                            <div class="contribution-value">30.0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contribution-bar">
+                    <div class="contribution-label">LoRA Adaptation</div>
+                    <div class="contribution-progress">
+                        <div class="contribution-fill" style="width: 11.67%;">
+                            <div class="contribution-value">11.67%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contribution-bar">
+                    <div class="contribution-label">EvoPrompt</div>
+                    <div class="contribution-progress">
+                        <div class="contribution-fill" style="width: 11.67%;">
+                            <div class="contribution-value">11.67%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contribution-bar">
+                    <div class="contribution-label">Word Filter</div>
+                    <div class="contribution-progress">
+                        <div class="contribution-fill" style="width: 3.33%;">
+                            <div class="contribution-value">3.33%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-finding">
+                    <strong>Key Finding:</strong> TokenLimit contributes most significantly to WER reduction (45%), effectively eliminating tokenization errors caused by over-length input sequences and improving processing stability.
+                </div>
+
+                <!-- Figure 6: Module Contribution Analysis -->
+                <div class="chart-container" style="margin-top: 25px;">
+                    <div class="chart-title">Individual Module Contribution Analysis</div>
+                    <div style="text-align: center; padding: 20px;">
+                        <img src="figure6.png" alt="Individual Module Contribution Analysis" class="figure-image">
+                        <p class="figure-caption">
+                            <strong>Figure 6:</strong> Radar chart showing the relative contribution of each technique component to overall WER reduction in the EvoLoRA framework
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">5</span>
+                Discussion
+            </h2>
+            
+            <div class="discussion">
+                <h4>Performance Bottlenecks and Limitations</h4>
+                <p>Despite achieving significant performance improvements, our framework exhibits a 4.05% WER gap compared to SOTA method Hypo2Trans (2.20%). Core limitations include:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Domain Adaptation:</strong> Limited coverage of specialized terminology and acoustic conditions</li>
+                    <li><strong>Acoustic Information:</strong> Post-processing approach lacks explicit acoustic feature integration</li>
+                    <li><strong>Sequence Modeling:</strong> Decreased efficiency with long N-best hypothesis sequences (>300 tokens)</li>
+                </ul>
+            </div>
+
+            <div class="discussion">
+                <h4>Computational Efficiency Trade-offs</h4>
+                <p>The framework achieves optimal balance between performance and resource consumption:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Lightweight Model Advantage:</strong> TinyLlama-1.1B requires 87% less training time with only 1.22% WER increase</li>
+                    <li><strong>LoRA Efficiency:</strong> 98.7% parameter reduction while maintaining 92% of full fine-tuning performance</li>
+                    <li><strong>Scalability:</strong> Suitable for edge devices and resource-constrained scenarios</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">6</span>
+                Future Work
+            </h2>
+            
+            <div class="future-work">
+                <h4>Adaptive Optimization Mechanisms</h4>
+                <ul>
+                    <li>Dynamic adjustment of LoRA rank parameters based on input data characteristics</li>
+                    <li>Bayesian optimization for hyperparameter tuning in EvoPrompt</li>
+                    <li>Closed-loop adaptation system for "Data-Model-Optimization" paradigm</li>
+                </ul>
+            </div>
+
+            <div class="future-work">
+                <h4>Cross-Domain Generalization</h4>
+                <ul>
+                    <li>Extension to specialized domains (medical, legal, technical)</li>
+                    <li>Meta-learning approaches for rapid domain adaptation</li>
+                    <li>Integration of acoustic features with textual hypotheses</li>
+                </ul>
+            </div>
+
+            <div class="future-work">
+                <h4>Advanced Integration Techniques</h4>
+                <ul>
+                    <li>Reinforcement learning for automatic vocabulary filtering strategies</li>
+                    <li>Cross-modal fusion for improved error correction capability</li>
+                    <li>Hardware co-optimization for edge device deployment</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">7</span>
+                Conclusion
+            </h2>
+            
+            <div class="conclusion">
+                <h3>Research Contributions</h3>
+                <p>This study proposes the EvoLoRA framework for resource-efficient ASR error correction, achieving significant performance improvements through synergistic integration of LoRA, EvoPrompt, and auxiliary techniques. Key contributions include:</p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li><strong>Methodological Innovation:</strong> Novel combination of low-rank adaptation and evolutionary prompt optimization</li>
+                    <li><strong>Efficiency Achievement:</strong> 98.7% parameter reduction with minimal performance loss</li>
+                    <li><strong>Practical Impact:</strong> Validation of "lightweight model + efficient optimization" paradigm for resource-constrained scenarios</li>
+                </ul>
+                <p style="margin-top: 20px;">The framework provides a cost-effective solution for ASR error correction in edge devices and low-resource environments, demonstrating that careful optimization can achieve competitive performance with significantly reduced computational requirements.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">8</span>
+                References
+            </h2>
+            
+            <div class="references">
+                <div class="reference-item">[1] Zweig, G., & Ney, H. (2000). Speech recognition with language models. <em>Handbook of Speech Processing</em>, 10(2), 373-407.</div>
+                <div class="reference-item">[2] Wang, X., et al. (2023). Hypo2Trans: Leveraging N-best Hypotheses for End-to-End ASR Error Correction with Large Language Models. <em>Interspeech 2023</em>.</div>
+                <div class="reference-item">[3] Hu, E. H., et al. (2021). LoRA: Low-rank adaptation of large language models. <em>arXiv preprint arXiv:2106.09685</em>.</div>
+                <div class="reference-item">[4] Chen, Y., et al. (2023). Parameter-Efficient Fine-Tuning for ASR Post-Processing with Large Language Models. <em>ICASSP 2023</em>.</div>
+                <div class="reference-item">[5] Sachdev, A., et al. (2024). Evolutionary Prompt Search for Large Language Models. <em>NeurIPS 2024</em>.</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Animation effects for academic interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Animate contribution bars
+                        const fills = entry.target.querySelectorAll('.contribution-fill');
+                        fills.forEach(fill => {
+                            const width = fill.style.width;
+                            fill.style.width = '0%';
+                            setTimeout(() => {
+                                fill.style.width = width;
+                            }, 500);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            // Observe ablation study section
+            const ablationSection = document.querySelector('.ablation-study');
+            if (ablationSection) {
+                observer.observe(ablationSection);
+            }
+
+            // Add subtle hover effects for academic elements
+            const cards = document.querySelectorAll('.technique-card, .metric-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transition = 'all 0.3s ease';
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Table row highlighting
+            const tableRows = document.querySelectorAll('.comparison-table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#e8f4f8';
+                    this.style.transition = 'background-color 0.2s ease';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+
+            // Add smooth scrolling for better navigation
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.scrollMarginTop = '20px';
+            });
+        });
+    </script>
+</body>
+</html>
