@@ -5,6 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EvoLoRA: Synergizing Low-Rank Adaptation and Evolutionary Prompts for Resource-Efficient ASR Error Correction</title>
     <style>
+        /* inter-300 - latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-300.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-300.woff') format('woff');
+        }
+
+        /* inter-400 - latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-regular.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-regular.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 500;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-500.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-500.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-700.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-700.woff') format('woff');
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,11 +54,44 @@
         }
 
         body {
-            font-family: 'Times New Roman', serif;
-            background: #fafafa;
-            color: #2c3e50;
+            font-family: 'Inter', 'Times New Roman', serif;
+            background: #f8f9fa;
+            color: #212529;
             line-height: 1.7;
             font-size: 16px;
+            padding-top: 70px;
+        }
+
+        .navbar {
+            background-color: #f8f9fa !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: #212529 !important;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand svg {
+            margin-right: 0.5rem;
         }
 
         .container {
@@ -318,13 +393,14 @@
             text-align: center;
         }
 
-        .figure-image {
+        .img-fluid {
             max-width: 100%; 
             height: auto; 
             border: 1px solid #ddd; 
-            border-radius: 4px;
+            border-radius: 12px;
             display: block;
-            margin: 0 auto;
+            margin: 0 auto 2rem auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .figure-caption {
@@ -528,6 +604,89 @@
             color: #e17055;
         }
 
+        .footer {
+            background: black;
+            border-top: 1px solid #343a40;
+            color: #6c757d;
+            font-weight: 300;
+        }
+
+        .footer-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .footer-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-brand {
+            color: #6c757d !important;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-brand svg {
+            margin-right: 0.5rem;
+        }
+
+        .footer-column {
+            border-right: 1px solid #343a40;
+            padding-right: 1rem;
+        }
+
+        .footer-column:last-child {
+            border-right: none;
+        }
+
+        .footer-column h6 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-nav a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-nav a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 1rem 0;
+            border-top: 1px solid #343a40;
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            color: white;
+        }
+
         @media (max-width: 1024px) {
             .container {
                 padding: 20px 30px;
@@ -539,6 +698,22 @@
             
             .performance-grid {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .footer-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .footer-column {
+                border-right: none;
+                border-bottom: 1px solid #343a40;
+                padding-right: 0;
+                padding-bottom: 1rem;
+            }
+
+            .footer-column:last-child {
+                border-bottom: none;
             }
         }
 
@@ -558,10 +733,26 @@
             .bar-chart {
                 height: 280px;
             }
+
+            .navbar-container {
+                padding: 0 1rem;
+            }
         }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="index.html">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+                    <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
+                    <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+                </svg>
+                <span>Kristy</span>
+            </a>
+        </div>
+    </nav>
+
     <div class="container">
         <header class="header">
             <h1 class="paper-title">EvoLoRA: Synergizing Low-Rank Adaptation and Evolutionary Prompts for Resource-Efficient ASR Error Correction</h1>
@@ -591,19 +782,19 @@
         <section class="section">
             <h2 class="section-title">
                 <span class="section-number">2</span>
+                Research Poster
+            </h2>
+            <img src="img/poster.png" alt="Research Poster" class="img-fluid">
+            <p class="figure-caption">
+                <strong>Research Poster:</strong> Complete overview of the EvoLoRA framework for ASR error correction
+            </p>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">3</span>
                 Methodology
             </h2>
-            
-            <!-- Figure 1: System Architecture -->
-            <div class="chart-container">
-                <div class="chart-title">EvoLoRA System Architecture Pipeline</div>
-                <div style="text-align: center; padding: 20px;">
-                    <img src="figure1.png" alt="EvoLoRA System Architecture Pipeline" class="figure-image">
-                    <p class="figure-caption">
-                        <strong>Figure 1:</strong> End-to-end process flow of the EvoLoRA framework showing the complete pipeline from audio input to final transcription
-                    </p>
-                </div>
-            </div>
             
             <div class="methodology-overview">
                 <div class="pipeline-diagram">
@@ -634,17 +825,6 @@
                             ΔW = AB, where A ∈ ℝ<sup>r×k</sup>, B ∈ ℝ<sup>d×r</sup>, r ≪ min(d,k)
                         </div>
                         <p>Applied to Query and Value projection layers in attention mechanisms, reducing parameters from <em>dk</em> to <em>r(d+k)</em>.</p>
-                        
-                        <!-- Figure 2: LoRA Matrix Structure -->
-                        <div class="chart-container" style="margin-top: 20px;">
-                            <div class="chart-title">LoRA Matrix Structure Comparison</div>
-                            <div style="text-align: center; padding: 20px;">
-                                <img src="figure2.png" alt="LoRA Matrix Structure Comparison" class="figure-image">
-                                <p class="figure-caption">
-                                    <strong>Figure 2:</strong> Comparison between original dense Transformer layer weights (left) and LoRA low-rank matrix injection structure (right)
-                                </p>
-                            </div>
-                        </div>
                     </div>
                     
                     <div class="technique-card">
@@ -656,17 +836,6 @@
                             <li><strong>Mutation:</strong> Rate 0.2 with keyword replacement</li>
                             <li><strong>Fitness:</strong> WER on validation set</li>
                         </ul>
-                        
-                        <!-- Figure 3: Evolutionary Algorithm Process -->
-                        <div class="chart-container" style="margin-top: 20px;">
-                            <div class="chart-title">Evolutionary Algorithm Process Visualization</div>
-                            <div style="text-align: center; padding: 20px;">
-                                <img src="figure3.png" alt="Evolutionary Algorithm Process Visualization" class="figure-image">
-                                <p class="figure-caption">
-                                    <strong>Figure 3:</strong> 3D visualization of evolutionary prompt optimization process showing initial population (blue), selection (green), crossover (red), and mutation (purple) stages
-                                </p>
-                            </div>
-                        </div>
                     </div>
                     
                     <div class="technique-card">
@@ -684,8 +853,8 @@
 
         <section class="section">
             <h2 class="section-title">
-                <span class="section-number">3</span>
-                Experimental Results
+                <span class="section-number">4</span>
+                Key Figures and Results
             </h2>
             
             <div class="results-section">
@@ -711,29 +880,51 @@
             </div>
 
             <div class="chart-container">
+                <div class="chart-title">Evolutionary Algorithm Process</div>
+                <img src="img/figure1.png" alt="Evolutionary Algorithm Process" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 1:</strong> 3D visualization of evolutionary prompt optimization process showing initial population, selection, crossover, and mutation stages
+                </p>
+            </div>
+
+            <div class="chart-container">
                 <div class="chart-title">Word Error Rate (WER) Comparison</div>
-                <div class="bar-chart">
-                    <div class="bar" style="height: 45%;">
-                        <div class="bar-value">7.47%</div>
-                        <div class="bar-label">TinyLlama-1.1B<br>(EvoLoRA)</div>
-                    </div>
-                    <div class="bar" style="height: 38%;">
-                        <div class="bar-value">6.25%</div>
-                        <div class="bar-label">Qwen2.5-7B<br>(Full Fine-tuning)</div>
-                    </div>
-                    <div class="bar" style="height: 47%;">
-                        <div class="bar-value">7.82%</div>
-                        <div class="bar-label">Qwen2.5-7B<br>(LoRA only)</div>
-                    </div>
-                    <div class="bar" style="height: 32%;">
-                        <div class="bar-value">5.31%</div>
-                        <div class="bar-label">ASR<br>Baseline</div>
-                    </div>
-                    <div class="bar" style="height: 13%;">
-                        <div class="bar-value">2.20%</div>
-                        <div class="bar-label">Hypo2Trans<br>(SOTA)</div>
-                    </div>
-                </div>
+                <img src="img/figure2.png" alt="WER Comparison" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 2:</strong> Comprehensive WER comparison showing performance improvements across different models and configurations
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Module Contribution Analysis</div>
+                <img src="img/figure3.png" alt="WER Reduction Radar Chart" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 3:</strong> Radar chart showing the relative contribution of each technique component to overall WER reduction
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">System Architecture Pipeline</div>
+                <img src="img/figure4.png" alt="Pipeline Diagram" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 4:</strong> End-to-end process flow of the EvoLoRA framework from audio input to final transcription
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">LoRA Matrix Structure</div>
+                <img src="img/figure5.png" alt="LoRA Weight Injection" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 5:</strong> Comparison between original dense Transformer layer weights and LoRA low-rank matrix injection structure
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">3D Performance Comparison</div>
+                <img src="img/figure6.png" alt="3D WER Comparison" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 6:</strong> 3D visualization comparing optimized models versus baseline models across different model sizes
+                </p>
             </div>
 
             <table class="comparison-table">
@@ -782,33 +973,11 @@
                     </tr>
                 </tbody>
             </table>
-
-            <!-- Figure 4: 3D WER Comparison -->
-            <div class="chart-container">
-                <div class="chart-title">3D WER Performance Comparison with SOTA</div>
-                <div style="text-align: center; padding: 20px;">
-                    <img src="figure4.png" alt="3D WER Performance Comparison with SOTA" class="figure-image">
-                    <p class="figure-caption">
-                        <strong>Figure 4:</strong> 3D comparison of Word Error Rates showing performance gaps between our methods and state-of-the-art Hypo2Trans
-                    </p>
-                </div>
-            </div>
-
-            <!-- Figure 5: Computational Efficiency -->
-            <div class="chart-container">
-                <div class="chart-title">Computational Efficiency vs Model Performance</div>
-                <div style="text-align: center; padding: 20px;">
-                    <img src="figure5.png" alt="Computational Efficiency vs Model Performance" class="figure-image">
-                    <p class="figure-caption">
-                        <strong>Figure 5:</strong> 3D visualization comparing optimized models (orange) versus baseline models (blue) across different model sizes, highlighting significant WER improvements
-                    </p>
-                </div>
-            </div>
         </section>
 
         <section class="section">
             <h2 class="section-title">
-                <span class="section-number">4</span>
+                <span class="section-number">5</span>
                 Ablation Study
             </h2>
             
@@ -866,23 +1035,12 @@
                 <div class="highlight-finding">
                     <strong>Key Finding:</strong> TokenLimit contributes most significantly to WER reduction (45%), effectively eliminating tokenization errors caused by over-length input sequences and improving processing stability.
                 </div>
-
-                <!-- Figure 6: Module Contribution Analysis -->
-                <div class="chart-container" style="margin-top: 25px;">
-                    <div class="chart-title">Individual Module Contribution Analysis</div>
-                    <div style="text-align: center; padding: 20px;">
-                        <img src="figure6.png" alt="Individual Module Contribution Analysis" class="figure-image">
-                        <p class="figure-caption">
-                            <strong>Figure 6:</strong> Radar chart showing the relative contribution of each technique component to overall WER reduction in the EvoLoRA framework
-                        </p>
-                    </div>
-                </div>
             </div>
         </section>
 
         <section class="section">
             <h2 class="section-title">
-                <span class="section-number">5</span>
+                <span class="section-number">6</span>
                 Discussion
             </h2>
             
@@ -909,7 +1067,7 @@
 
         <section class="section">
             <h2 class="section-title">
-                <span class="section-number">6</span>
+                <span class="section-number">7</span>
                 Future Work
             </h2>
             
@@ -943,7 +1101,7 @@
 
         <section class="section">
             <h2 class="section-title">
-                <span class="section-number">7</span>
+                <span class="section-number">8</span>
                 Conclusion
             </h2>
             
@@ -958,22 +1116,44 @@
                 <p style="margin-top: 20px;">The framework provides a cost-effective solution for ASR error correction in edge devices and low-resource environments, demonstrating that careful optimization can achieve competitive performance with significantly reduced computational requirements.</p>
             </div>
         </section>
-
-        <section class="section">
-            <h2 class="section-title">
-                <span class="section-number">8</span>
-                References
-            </h2>
-            
-            <div class="references">
-                <div class="reference-item">[1] Zweig, G., & Ney, H. (2000). Speech recognition with language models. <em>Handbook of Speech Processing</em>, 10(2), 373-407.</div>
-                <div class="reference-item">[2] Wang, X., et al. (2023). Hypo2Trans: Leveraging N-best Hypotheses for End-to-End ASR Error Correction with Large Language Models. <em>Interspeech 2023</em>.</div>
-                <div class="reference-item">[3] Hu, E. H., et al. (2021). LoRA: Low-rank adaptation of large language models. <em>arXiv preprint arXiv:2106.09685</em>.</div>
-                <div class="reference-item">[4] Chen, Y., et al. (2023). Parameter-Efficient Fine-Tuning for ASR Post-Processing with Large Language Models. <em>ICASSP 2023</em>.</div>
-                <div class="reference-item">[5] Sachdev, A., et al. (2024). Evolutionary Prompt Search for Large Language Models. <em>NeurIPS 2024</em>.</div>
-            </div>
-        </section>
     </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-row">
+                <div class="footer-column">
+                    <a class="footer-brand" href="index.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+                            <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
+                            <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+                        </svg>
+                        <span>Kristy</span>
+                    </a>
+                </div>
+                <div class="footer-column">
+                    <h6>My Projects</h6>
+                    <ul class="footer-nav">
+                        <li><a href="sw.html">Swallowtail butterfly</a></li>
+                        <li><a href="su.html">Susu&Snow</a></li>
+                        <li><a href="foodie.html">Spoteat</a></li>
+                        <li><a href="lut.html">Lutolence</a></li>
+                        <li><a href="ava.html">LiNFT</a></li>
+                        <li><a href="llm_error_correction.html">LLM Error Correction</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h6>About Me</h6>
+                    <ul class="footer-nav">
+                        <li><a href="https://github.com/KristyZhang-Luyan">Github</a></li>
+                        <li><a href="#">Linkedin</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                Made by <a href="index.html">Kristy Zhang</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
         // Animation effects for academic interaction
@@ -1033,10 +1213,20 @@
                 });
             });
 
-            // Add smooth scrolling for better navigation
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                section.style.scrollMarginTop = '20px';
+            // Navbar scroll effect
+            let scrollpos = window.scrollY;
+            const header = document.querySelector(".navbar");
+
+            const add_class_on_scroll = () => header.classList.add("scrolled");
+            const remove_class_on_scroll = () => header.classList.remove("scrolled");
+
+            window.addEventListener('scroll', function() {
+                scrollpos = window.scrollY;
+                if (scrollpos >= 50) {
+                    add_class_on_scroll();
+                } else {
+                    remove_class_on_scroll();
+                }
             });
         });
     </script>
