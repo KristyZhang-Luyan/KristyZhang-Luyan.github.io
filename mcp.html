@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP: A Control-Theoretic Orchestration Framework for Multimodal LLMs</title>
+    <style>
+        /* inter-300 - latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-300.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-300.woff') format('woff');
+        }
+
+        /* inter-400 - latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-regular.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-regular.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 500;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-500.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-500.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: local(''),
+                url('fonts/inter-v12-latin-700.woff2') format('woff2'),
+                url('fonts/inter-v12-latin-700.woff') format('woff');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Times New Roman', serif;
+            background: #f8f9fa;
+            color: #212529;
+            line-height: 1.7;
+            font-size: 16px;
+            padding-top: 70px;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background-color: #f8f9fa !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: #212529 !important;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand svg {
+            margin-right: 0.5rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: white;
+            box-shadow: 0 0 40px rgba(0,0,0,0.08);
+            min-height: 100vh;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 3px solid #667eea;
+            background: linear-gradient(135deg, #667eea05 0%, #764ba205 100%);
+            padding: 60px 40px 40px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, #667eea10 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .paper-title {
+            font-size: 2.8em;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .authors {
+            font-size: 1.2em;
+            color: #5a6c7d;
+            margin-bottom: 15px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .affiliation {
+            font-size: 1em;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .keywords-section {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .keyword {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: 1px solid #667eea30;
+            transition: all 0.3s ease;
+        }
+
+        .keyword:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .section-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Abstract */
+        .abstract {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 35px;
+            border-left: 5px solid #667eea;
+            font-size: 1.1em;
+            line-height: 1.9;
+            color: #2c3e50;
+            text-align: justify;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .abstract strong {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        /* Subsection Headers */
+        h3 {
+            color: #34495e;
+            font-size: 1.6rem;
+            margin: 35px 0 20px 0;
+            font-weight: 600;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 5px;
+            height: 25px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            border-radius: 3px;
+        }
+
+        h4 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin: 30px 0 15px 0;
+            font-weight: 600;
+        }
+
+        /* Text Styles */
+        p {
+            text-align: justify;
+            margin-bottom: 20px;
+            color: #4a5568;
+            line-height: 1.9;
+        }
+
+        ul, ol {
+            margin: 20px 0;
+            padding-left: 40px;
+            color: #4a5568;
+        }
+
+        li {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+
+        /* Performance Cards Grid */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 35px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, #667eea10 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .metric-value {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            color: #718096;
+            font-size: 1em;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* Methodology Overview */
+        .methodology-overview {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin: 40px 0;
+            align-items: start;
+        }
+
+        .pipeline-diagram {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .pipeline-step {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .pipeline-step:hover {
+            background: linear-gradient(135deg, #667eea05 0%, #764ba205 100%);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .pipeline-step::after {
+            content: '→';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .pipeline-step:last-child::after {
+            display: none;
+        }
+
+        .pipeline-step h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .pipeline-step p {
+            color: #718096;
+            font-size: 0.95em;
+            margin-bottom: 0;
+        }
+
+        /* Technical Details Cards */
+        .technical-details {
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .technique-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .technique-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+        }
+
+        .technique-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .technique-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Formulas */
+        .formula {
+            background: linear-gradient(135deg, #f4f5f7 0%, #ffffff 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 1.15em;
+            color: #2d3748;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Tables */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 35px 0;
+            font-size: 0.95em;
+            background: white;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-table tr {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: linear-gradient(135deg, #667eea05 0%, #764ba205 100%);
+        }
+
+        .comparison-table td {
+            color: #4a5568;
+        }
+
+        /* Highlight Boxes */
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border: 2px solid #667eea30;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 35px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+
+        .highlight-box h4 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .highlight-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .highlight-box li {
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Results Section */
+        .results-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 2px solid #667eea30;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 5px 25px rgba(102, 126, 234, 0.1);
+        }
+
+        .results-section h3 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        /* Figure Styles */
+        .figure-container {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto 2rem auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .figure-placeholder {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 60px;
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            margin: 20px 0;
+        }
+
+        .figure-caption {
+            font-size: 0.95em;
+            color: #718096;
+            margin-top: 15px;
+            font-style: italic;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Discussion Section */
+        .discussion {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border-left: 5px solid #e74c3c;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        .discussion h4 {
+            color: #c0392b;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        /* Future Work */
+        .future-work {
+            background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+            border: 2px solid #3498db30;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .future-work h4 {
+            color: #2980b9;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .future-work ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .future-work li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            color: #2c3e50;
+        }
+
+        .future-work li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #3498db;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Conclusion */
+        .conclusion {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(44, 62, 80, 0.3);
+        }
+
+        .conclusion h3 {
+            color: #ecf0f1;
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            padding-left: 0;
+        }
+
+        .conclusion h3::before {
+            display: none;
+        }
+
+        .conclusion p, .conclusion li {
+            color: #ecf0f1;
+            line-height: 1.9;
+        }
+
+        .conclusion ul {
+            color: #ecf0f1;
+        }
+
+        /* References */
+        .references {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 35px;
+            margin: 35px 0;
+        }
+
+        .reference-item {
+            margin-bottom: 18px;
+            padding-left: 25px;
+            text-indent: -25px;
+            color: #4a5568;
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            background: black;
+            border-top: 1px solid #343a40;
+            color: #6c757d;
+            font-weight: 300;
+        }
+
+        .footer-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .footer-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-brand {
+            color: #6c757d !important;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-brand svg {
+            margin-right: 0.5rem;
+        }
+
+        .footer-column {
+            border-right: 1px solid #343a40;
+            padding-right: 1rem;
+        }
+
+        .footer-column:last-child {
+            border-right: none;
+        }
+
+        .footer-column h6 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-nav a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-nav a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 1rem 0;
+            border-top: 1px solid #343a40;
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 30px 40px;
+            }
+            
+            .methodology-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .footer-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .footer-column {
+                border-right: none;
+                border-bottom: 1px solid #343a40;
+                padding-right: 0;
+                padding-bottom: 1rem;
+            }
+
+            .footer-column:last-child {
+                border-bottom: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 25px;
+            }
+            
+            .paper-title {
+                font-size: 2em;
+            }
+            
+            .section-title {
+                font-size: 1.6em;
+            }
+            
+            .section-number {
+                width: 35px;
+                height: 35px;
+                font-size: 1em;
+            }
+            
+            .metric-value {
+                font-size: 2.5em;
+            }
+
+            .navbar-container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding-top: 0;
+            }
+            
+            .navbar {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+            
+            .footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="index.html">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+                    <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
+                    <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+                </svg>
+                <span>Kristy</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="paper-title">MCP: A Control-Theoretic Orchestration Framework for Synergistic Efficiency and Interpretability in Multimodal Large Language Models</h1>
+            <div class="authors">Luyan Zhang<sup>1</sup></div>
+            <div class="affiliation">
+                <sup>1</sup>XTech Lab
+            </div>
+            <div class="keywords-section">
+                <span class="keyword">Large Model Optimization</span>
+                <span class="keyword">MCP Framework</span>
+                <span class="keyword">Dynamic Control Flow</span>
+                <span class="keyword">Reinforcement Learning</span>
+                <span class="keyword">Interpretable AI</span>
+                <span class="keyword">Multimodal Collaboration</span>
+            </div>
+        </header>
+
+        <!-- Abstract -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">A</span>
+                Abstract
+            </h2>
+            <div class="abstract">
+                <p>
+                    Aiming at the problems of computational inefficiency and insufficient interpretability faced by large models in complex tasks such as multi-round reasoning and multi-modal collaboration, this study proposes a three-layer collaboration framework based on model-controller-task adaptation (MCP). By decoupling large model functions into reasoning, generation and retrieval modules, and combining reinforcement learning-driven dynamic routing algorithms and task adaptation mechanisms, the systematic integration of control theory and large model dynamic reasoning is achieved for the first time. Experiments show that the MCP framework improves the performance of cross-modal benchmarking tasks by <strong>15-30%</strong> compared with the baseline model, improves the reasoning efficiency by <strong>40%</strong>, and generates the interpretable intermediate results through the Presenter layer, obtaining <strong>90%</strong> of the manual interpretability scores, which provides a brand-new technological path to solve the bottleneck of the practical application of the large model.
+                </p>
+            </div>
+        </section>
+
+        <!-- Introduction -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">1</span>
+                Introduction
+            </h2>
+            <p>
+                The unidirectional reasoning model of large models (e.g., GPT-4, LLaMA) exposes significant defects in computational redundancy and insufficient dynamic adjustment ability when handling complex tasks such as medical diagnosis and scientific Q&A. Existing methods are predominantly limited to unimodal optimization or static architectural design, lacking a global resource scheduling mechanism constructed from a control theory perspective.
+            </p>
+            
+            <div class="highlight-box">
+                <h4>Core Challenges Addressed</h4>
+                <ul>
+                    <li>Decomposing a large model with hundreds of billions of parameters into semantically coherent and dynamically reorganizable sub-modules</li>
+                    <li>Designing controllers that balance both performance and efficiency while avoiding state-space explosion</li>
+                    <li>Ensuring framework universality across different tasks including textual, visual, and multimodal applications</li>
+                </ul>
+            </div>
+
+            <p>
+                To address these challenges, this study proposes the MCP framework. By establishing a mathematical formal model, designing dynamic routing algorithms and lightweight interfaces, we achieve synergistic performance-efficiency-interpretability improvements on cross-modal datasets.
+            </p>
+        </section>
+
+        <!-- Related Work -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">2</span>
+                Related Work
+            </h2>
+            
+            <h3>2.1 Large Model Optimization</h3>
+            <p>
+                Model compression techniques have evolved into a multi-dimensional optimization system. LayerPruning (He et al., NeurIPS 2021) proposes layer importance assessment based on Fisher information, reducing computation by 40% while maintaining over 85% performance. DynamicViT (Chen et al., CVPR 2022) dynamically activates key tokens via attention graphs to achieve adaptive balance between inference cost and accuracy.
+            </p>
+
+            <div class="performance-grid">
+                <div class="metric-card">
+                    <div class="metric-value">40%</div>
+                    <div class="metric-label">Computation Reduction<br>LayerPruning</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">99%</div>
+                    <div class="metric-label">Inference Accuracy<br>AWQ Quantization</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">12%</div>
+                    <div class="metric-label">Efficiency Improvement<br>Dynamic Routing</div>
+                </div>
+            </div>
+
+            <h3>2.2 Collaborative AI Systems</h3>
+            <p>
+                In distributed reasoning collaboration, MAgent-DL (Zhang et al., ICML 2023) proposes a multi-model collaboration mechanism based on communication protocols, improving diagnosis accuracy by 9% through expert model interactions in medical diagnosis tasks. However, the framework relies on predefined role divisions and cannot dynamically reorganize model functionality.
+            </p>
+
+            <h3>2.3 Control Theory Applications in Large Models</h3>
+            <p>
+                The application of policy gradient methods in resource scheduling shows promise, with DDPG-RA achieving 20% efficiency improvement in data center energy optimization. However, when applied to large model inference, the state-space explosion problem emerges - 100-billion parameter models have state representation dimensions on the order of 10^12, making traditional RL algorithms difficult to converge.
+            </p>
+        </section>
+
+        <!-- Methodology -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">3</span>
+                Methodology
+            </h2>
+            
+            <h3>3.1 MCP Framework Design</h3>
+            <p>
+                The MCP framework implements model decoupling - intelligent scheduling - task adaptation through three-layer collaboration, building a dynamically scalable large model reasoning system. The architecture disassembles large models into three functionally orthogonal sub-modules, achieving dynamic collaboration through lightweight communication protocols.
+            </p>
+
+            <div class="figure-container">
+                <img src="img/MCP1.png" alt="MCP Three-layer Architecture" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 1:</strong> Schematic diagram of MCP three-layer architecture showing Model Layer (functional decoupling), Controller Layer (dynamic routing), and Presenter Layer (task adaptation)
+                </p>
+            </div>
+
+            <div class="methodology-overview">
+                <div class="pipeline-diagram">
+                    <h3 style="text-align: center; margin-bottom: 25px; color: #2c3e50;">System Architecture</h3>
+                    <div class="pipeline-step">
+                        <h4>Model Layer</h4>
+                        <p>Functional decoupling into specialized modules</p>
+                    </div>
+                    <div class="pipeline-step">
+                        <h4>Controller Layer</h4>
+                        <p>Dynamic routing & RL optimization</p>
+                    </div>
+                    <div class="pipeline-step">
+                        <h4>Presenter Layer</h4>
+                        <p>Task adaptation & interpretability</p>
+                    </div>
+                </div>
+
+                <div class="technical-details">
+                    <div class="technique-card">
+                        <h4><span class="technique-icon">R</span>Reasoning Module</h4>
+                        <p>Focuses on logical deduction and knowledge verification for strong reasoning tasks. Contains 43.7M parameters (±1.2%) with 8.2ms inference latency. Uses Sparse Attention Cluster (SAC) technology with 32 functional clusters, reducing redundant computation by 37%.</p>
+                    </div>
+                    
+                    <div class="technique-card">
+                        <h4><span class="technique-icon">G</span>Generation Module</h4>
+                        <p>Responsible for creative content synthesis including copy generation and story continuation. Contains 37.5M parameters (±0.9%) with 6.5ms generation latency. Implements Length-Aware Decoding (LAD) mechanism, improving BLEU-4 metrics by 19%.</p>
+                    </div>
+                    
+                    <div class="technique-card">
+                        <h4><span class="technique-icon">S</span>Retrieval Module</h4>
+                        <p>Specializes in knowledge retrieval and semantic matching. Contains 18.8K parameters (±0.7%) with 4.1ms retrieval latency. Utilizes Hierarchical Hybrid Index (HHI) structure, improving retrieval efficiency by 34% with 92.7% recall rate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>3.2 Dynamic Routing Algorithm</h3>
+            <p>
+                The Controller layer implements closed-loop dynamic routing with reinforcement learning, achieving millisecond-level scheduling of computing resources. The algorithm is based on task complexity modeling with three-dimensional complexity vectors:
+            </p>
+
+            <div class="formula">
+                C = [c<sub>semantic</sub>, c<sub>length</sub>, c<sub>uncertainty</sub>]
+            </div>
+
+            <p>
+                The reinforcement learning policy feedback loop fuses module-level metrics with task-level features to construct a 27-dimensional state space. Policy optimization uses Twin-Delayed DDPG (TD3) algorithm with the reward function:
+            </p>
+
+            <div class="formula">
+                R = α · (1/total_delay) + β · output_quality - γ · delay_variance
+            </div>
+
+            <div class="figure-container">
+                <img src="img/MCP2.png" alt="Convergence Analysis" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 2:</strong> Convergence analysis of Controller layer strategy gradient with coefficient estimates (β₀ = 8.21, β₁ = 2.67, β₂ = -1.52) and error bars (±1 SE)
+                </p>
+            </div>
+
+            <h3>3.3 Theoretical Analysis</h3>
+            <p>
+                For the dynamic routing policy at the Controller layer, stochastic gradient descent (SGD) convergence analysis verifies the stability of policy optimization. The strategy gradient satisfies:
+            </p>
+
+            <div class="formula">
+                ∇<sub>θ</sub>J(θ) = E[Σ<sub>t=0</sub><sup>T</sup> γ<sup>t</sup> ∇<sub>θ</sub> log π<sub>θ</sub>(a<sub>t</sub>|s<sub>t</sub>)Q(s<sub>t</sub>,a<sub>t</sub>)]
+            </div>
+
+            <p>
+                The Lipschitz constant L of the strategy gradient satisfies:
+            </p>
+
+            <div class="formula">
+                ||∇<sub>θ</sub>J(θ₁) - ∇<sub>θ</sub>J(θ₂)|| ≤ L ||θ₁ - θ₂||
+            </div>
+
+            <p>
+                Through cross-validation on 15 datasets, we calculate L=2.34 (with RMSE=1.8%), satisfying the convergence condition of Bregman dispersion and ensuring asymptotic stability of strategy optimization.
+            </p>
+        </section>
+
+        <!-- Experiments -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">4</span>
+                Experiments
+            </h2>
+            
+            <h3>4.1 Experimental Setup</h3>
+            <p>
+                The evaluation spans multiple domains: GLUE benchmark for NLP tasks, COCO for computer vision, and ScienceQA for multimodal reasoning. Baseline models include LLaMA-2 (7B), GPT-3.5, Switch Transformer (128MoE), and Pipeline-Parallel T5.
+            </p>
+
+            <h3>4.2 Main Results</h3>
+            
+            <div class="results-section">
+                <h3>Performance Metrics</h3>
+                <div class="performance-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">92%</div>
+                        <div class="metric-label">ScienceQA Accuracy<br>(vs 78% baseline)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">18ms</div>
+                        <div class="metric-label">End-to-end Latency<br>(vs 32ms baseline)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">10.3J</div>
+                        <div class="metric-label">Energy per Task<br>(vs 22.6J baseline)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">178</div>
+                        <div class="metric-label">Tasks/Second<br>(vs 123 baseline)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Cross-Dataset Performance Comparison</div>
+                <img src="img/MCP3.png" alt="Performance Comparison" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 3:</strong> Multimodal task performance comparison (ScienceQA/GLUE/COCO) showing accuracy, latency, energy efficiency metrics and convergence curves
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Delay-Accuracy Trade-offs Analysis</div>
+                <img src="img/MCP4.png" alt="Delay-Accuracy Trade-offs" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 4:</strong> Analysis of delay-accuracy trade-offs across datasets with 50% quantile latency comparisons
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Energy Efficiency Heat Map</div>
+                <img src="img/MCP5.png" alt="Energy Efficiency Heat Map" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 5:</strong> Heat map of energy efficiency as a function of model size and batch size, showing significant improvements for large models
+                </p>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>GLUE Score</th>
+                        <th>COCO Latency</th>
+                        <th>ScienceQA Acc</th>
+                        <th>Energy (J/task)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MCP Framework</strong></td>
+                        <td>95.1</td>
+                        <td>212ms</td>
+                        <td>92%</td>
+                        <td>10.3</td>
+                    </tr>
+                    <tr>
+                        <td>LLaMA-2 (7B)</td>
+                        <td>83.7</td>
+                        <td>416ms</td>
+                        <td>78%</td>
+                        <td>22.6</td>
+                    </tr>
+                    <tr>
+                        <td>GPT-3.5</td>
+                        <td>87.2</td>
+                        <td>358ms</td>
+                        <td>82%</td>
+                        <td>18.4</td>
+                    </tr>
+                    <tr>
+                        <td>Switch Transformer</td>
+                        <td>81.5</td>
+                        <td>445ms</td>
+                        <td>75%</td>
+                        <td>25.1</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>4.3 Ablation Study</h3>
+            
+            <div class="chart-container">
+                <div class="chart-title">Module Contribution Analysis</div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Configuration</th>
+                            <th>Accuracy Improvement</th>
+                            <th>Latency Reduction</th>
+                            <th>Energy Efficiency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Full MCP vs Static Routing</td>
+                            <td>+19%</td>
+                            <td>-35%</td>
+                            <td>+42%</td>
+                        </tr>
+                        <tr>
+                            <td>Full MCP vs Random Routing</td>
+                            <td>+12%</td>
+                            <td>-22%</td>
+                            <td>+29%</td>
+                        </tr>
+                        <tr>
+                            <td>Without RL Optimization</td>
+                            <td>-8%</td>
+                            <td>+15%</td>
+                            <td>-18%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>4.4 Case Study: Medical Diagnosis</h3>
+            <p>
+                In tuberculosis vs. lung cancer differential diagnosis, the MCP framework demonstrates adaptive module collaboration through four phases:
+            </p>
+
+            <div class="highlight-box">
+                <h4>Diagnostic Pipeline Activation Pattern</h4>
+                <ul>
+                    <li><strong>T1 - Information Input:</strong> Generation module 70% active for text-image alignment</li>
+                    <li><strong>T2 - Ambiguity Detection:</strong> Inference module jumps to 80% activation for clinical reasoning</li>
+                    <li><strong>T3 - Knowledge Retrieval:</strong> Dual-module rebalancing for knowledge validation</li>
+                    <li><strong>T4 - Report Generation:</strong> Generation module 90% active with inference consistency checking</li>
+                </ul>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Module Activation Timing for TB Diagnostic Case</div>
+                <img src="img/MCP6.png" alt="Module Activation Timing" class="img-fluid">
+                <p class="figure-caption">
+                    <strong>Figure 6:</strong> Timing of module activation for TB diagnostic cases showing dynamic collaboration between Inference and Generation modules across four diagnostic phases
+                </p>
+            </div>
+        </section>
+
+        <!-- Discussion -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">5</span>
+                Discussion
+            </h2>
+            
+            <div class="discussion">
+                <h4>Theoretical Significance</h4>
+                <p>
+                    The MCP framework verifies for the first time the feasibility of integrating control theory with large-model dynamic reasoning at the theoretical level. By treating large-model reasoning as a nonlinear dynamic system and introducing state-space representation from control theory, we establish a new paradigm for interdisciplinary research.
+                </p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li>Dynamic routing algorithm adapts to Liapunov's stability theory, proving gradient convergence to global optimum within O(log T) iterations</li>
+                    <li>Task-driven resource scheduling modeled as optimal control problem balancing accuracy and efficiency</li>
+                    <li>Control-theoretic feedback regulation corresponds to RL policy updates, achieving 23% accuracy improvement in medical diagnosis</li>
+                </ul>
+            </div>
+
+            <div class="discussion">
+                <h4>Practical Applications</h4>
+                <p>
+                    Real-world deployments demonstrate significant impact across multiple domains:
+                </p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li><strong>Semiconductor Manufacturing:</strong> 35% reduction in redundant computation, 98.7% defect identification accuracy</li>
+                    <li><strong>Quantitative Trading:</strong> Supports 1,780 decisions/second with 92.7% knowledge recall rate</li>
+                    <li><strong>Medical Diagnosis:</strong> Cross-hospital consistency scores improved from 68 to 91</li>
+                </ul>
+            </div>
+
+            <h3>5.3 Limitations</h3>
+            <p>
+                Despite significant achievements, several limitations require attention:
+            </p>
+            <ul>
+                <li>Reinforcement learning reward function weights show strong task specificity</li>
+                <li>Modular decoupling prone to overfitting with limited data (19% accuracy drop on n=200 datasets)</li>
+                <li>Hyperparameter optimization remains computationally intensive for new domains</li>
+            </ul>
+        </section>
+
+        <!-- Future Work -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">6</span>
+                Future Research Directions
+            </h2>
+            
+            <div class="future-work">
+                <h4>Adaptive Meta-Controller</h4>
+                <ul>
+                    <li>Bayesian optimization-based meta-controller to improve tuning efficiency by 50%</li>
+                    <li>Reduce cross-task adaptation time from 65% to 30%</li>
+                    <li>Automatic hyperparameter selection based on task characteristics</li>
+                </ul>
+            </div>
+
+            <div class="future-work">
+                <h4>Edge Deployment Optimization</h4>
+                <ul>
+                    <li>Neural architecture search for sub-10MB model compression</li>
+                    <li>Real-time inference with latency < 50ms on NVIDIA Jetson devices</li>
+                    <li>Hardware-aware optimization strategies</li>
+                </ul>
+            </div>
+
+            <div class="future-work">
+                <h4>Value Alignment Mechanisms</h4>
+                <ul>
+                    <li>Automatic filtering of biased information in generated content</li>
+                    <li>Fairness-aware routing algorithms</li>
+                    <li>Interpretable decision pathways for high-stakes applications</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">7</span>
+                Conclusion
+            </h2>
+            
+            <div class="conclusion">
+                <h3>Summary of Contributions</h3>
+                <p>
+                    The MCP (Model-Controller-Presenter) framework achieves breakthrough advances in large model optimization through three-layer synergistic design. Our key contributions include:
+                </p>
+                <ul style="margin-left: 20px; margin-top: 20px;">
+                    <li><strong>Performance Enhancement:</strong> 40% reduction in redundant computation, inference throughput increased from 123 to 178 tasks/s</li>
+                    <li><strong>Energy Efficiency:</strong> Task energy consumption reduced to 10.3J (54% improvement), GPU utilization increased from 53% to 78%</li>
+                    <li><strong>Interpretability:</strong> 90% human interpretability score through reasoning chain generation, 62% reduction in medical validation time</li>
+                    <li><strong>Generalization:</strong> Verified across 15 datasets with consistent performance gains</li>
+                </ul>
+                <p style="margin-top: 25px;">
+                    The framework establishes a new paradigm for efficient, interpretable, and scalable large language model deployment, breaking through the 'black box' application bottleneck and paving the way for practical adoption in resource-constrained and high-reliability scenarios.
+                </p>
+            </div>
+        </section>
+
+        <!-- References -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="section-number">R</span>
+                References
+            </h2>
+            
+            <div class="references">
+                <div class="reference-item">[1] He, Y., Liu, P., Wang, Z., Hu, Z., & Yang, Y. (2021). Layer-adaptive structured pruning guided by latency. Advances in Neural Information Processing Systems (NeurIPS), 34, 12497-12509.</div>
+                <div class="reference-item">[2] Chen, Z., Xie, L., Zheng, Y., & Tian, Q. (2022). DynamicViT: Efficient vision transformers with dynamic token sparsification. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 13907-13916.</div>
+                <div class="reference-item">[3] Zhang, S., Roller, S., Goyal, N., et al. (2023). AWQ: Activation-aware weight quantization for LLM compression and acceleration. arXiv preprint.</div>
+                <div class="reference-item">[4] Wang, X., Zhang, H., Ma, S., et al. (2023). MT-DKD: Multi-task distillation with decoupled knowledge for model compression. Proceedings of the 40th International Conference on Machine Learning (ICML), 202, 35871-35883.</div>
+                <div class="reference-item">[5] Li, Y., Yao, T., Pan, Y., & Mei, T. (2021). DyHead: Unifying object detection heads with attentions. Advances in Neural Information Processing Systems (NeurIPS), 34, 22661-22672.</div>
+                <div class="reference-item">[6] Fedus, W., Zoph, B., & Shazeer, N. (2021). Switch transformers: Scaling to trillion parameter models with simple and efficient sparsity. Advances in Neural Information Processing Systems (NeurIPS), 34, 1037-1051.</div>
+                <div class="reference-item">[7] Lepikhin, D., Lee, H., Xu, Y., et al. (2022). GShard: Scaling giant models with conditional computation and automatic sharding. Proceedings of the 39th International Conference on Machine Learning (ICML), 162, 12965-12977.</div>
+                <div class="reference-item">[8] Zhou, D., Schärli, N., Hou, L., et al. (2022). Automatic chain of thought prompting in large language models. Advances in Neural Information Processing Systems (NeurIPS), 35, 1788-1801.</div>
+                <div class="reference-item">[9] Zhang, Y., Tang, H., Zhang, Y., & Li, Y. (2023). MAgent-DL: Multi-agent distributed learning for collaborative inference. Proceedings of the 40th International Conference on Machine Learning (ICML), 205, 41230-41244.</div>
+                <div class="reference-item">[10] Abadi, M., et al. (2016). TensorFlow: A system for large-scale machine learning. Proceedings of the 12th USENIX Symposium on Operating Systems Design and Implementation (OSDI), 265-283.</div>
+                <div class="reference-item">[11] Raffel, C., Shazeer, N., Roberts, A., et al. (2020). Exploring the limits of transfer learning with a unified text-to-text transformer. Journal of Machine Learning Research (JMLR), 21(140), 1-67.</div>
+                <div class="reference-item">[12] Lillicrap, T. P., Hunt, J. J., Pritzel, A., et al. (2015). Continuous control with deep reinforcement learning. Proceedings of the 32nd International Conference on Machine Learning (ICML), 37, 1871-1880.</div>
+                <div class="reference-item">[13] Chua, K., Calandra, R., McAllister, R., & Levine, S. (2018). Deep reinforcement learning in a handful of trials using probabilistic dynamics models. Proceedings of the 35th International Conference on Machine Learning (ICML), 80, 4754-4765.</div>
+                <div class="reference-item">[14] Wang, A., Singh, A., Michael, J., et al. (2019). GLUE: A multi-task benchmark and analysis platform for natural language understanding. Proceedings of the 7th International Conference on Learning Representations (ICLR).</div>
+                <div class="reference-item">[15] Lin, T.-Y., Maire, M., Belongie, S., et al. (2014). Microsoft COCO: Common objects in context. Proceedings of the European Conference on Computer Vision (ECCV), 740-755.</div>
+                <div class="reference-item">[16] Lu, P., Mishra, S., Xia, T., et al. (2023). Learn to explain: Multimodal reasoning via thought chains for science question answering. Advances in Neural Information Processing Systems (NeurIPS), 36.</div>
+                <div class="reference-item">[17] Touvron, H., Lavril, T., Izacard, G., et al. (2023). Llama 2: Open foundation and fine-tuned chat models. arXiv preprint.</div>
+                <div class="reference-item">[18] OpenAI. (2023). GPT-3.5 technical report. OpenAI Research.</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-row">
+                <div class="footer-column">
+                    <a class="footer-brand" href="index.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+                            <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
+                            <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+                        </svg>
+                        <span>Kristy</span>
+                    </a>
+                </div>
+                <div class="footer-column">
+                    <h6>My Projects</h6>
+                    <ul class="footer-nav">
+                        <li><a href="sw.html">Swallowtail butterfly</a></li>
+                        <li><a href="su.html">Susu&Snow</a></li>
+                        <li><a href="foodie.html">Spoteat</a></li>
+                        <li><a href="lut.html">Lutolence</a></li>
+                        <!-- <li><a href="ava.html">LiNFT</a></li> -->
+                        <li><a href="lora.html">LLM EvoPrompt Error Correction</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h6>About Me</h6>
+                    <ul class="footer-nav">
+                        <li><a href="https://github.com/KristyZhang-Luyan">Github</a></li>
+                        <li><a href="#">Linkedin</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                Made by <a href="index.html">Kristy Zhang</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add scroll effect to navbar
+            const navbar = document.querySelector('.navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+                } else {
+                    navbar.style.boxShadow = '0 2px 15px rgba(0,0,0,0.08)';
+                }
+            });
+
+            // Animate metric cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            entry.target.style.transition = 'all 0.6s ease';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all metric cards
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach(card => {
+                observer.observe(card);
+            });
+
+            // Add hover effects
+            const cards = document.querySelectorAll('.technique-card, .pipeline-step');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
